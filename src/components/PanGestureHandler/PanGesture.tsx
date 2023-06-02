@@ -3,9 +3,11 @@ import React from "react";
 import { Headerback } from "../Headerback";
 import { useNavigation } from "@react-navigation/native";
 import Animated, {
+  event,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 
 import {
@@ -36,6 +38,15 @@ export const PanGesture = () => {
       traslateX.value = event.translationX + context.translateX;
       traslateY.value = event.translationY + context.translateY;
     },
+    onEnd: (event, context) => {
+      const distance = Math.sqrt(
+        Math.pow(event.translationX, 2) + Math.pow(event.translationY, 2)
+      );
+      if (distance < (SIZE * 3) / 2) {
+        traslateX.value = withSpring(0);
+        traslateY.value = withSpring(0);
+      }
+    },
   });
   const rStyle = useAnimatedStyle(() => {
     return {
@@ -58,9 +69,11 @@ export const PanGesture = () => {
         }}
       />
       <View style={styles.container}>
-        <PanGestureHandler onGestureEvent={onGestureEvent}>
-          <Animated.View style={[styles.squere, rStyle]} />
-        </PanGestureHandler>
+        <View style={styles.circle}>
+          <PanGestureHandler onGestureEvent={onGestureEvent}>
+            <Animated.View style={[styles.squere, rStyle]} />
+          </PanGestureHandler>
+        </View>
       </View>
     </View>
   );
@@ -77,5 +90,15 @@ const styles = StyleSheet.create({
     width: SIZE,
     height: SIZE,
     backgroundColor: "rgba(0,0,256,0.5)",
+    borderRadius: 20,
+  },
+  circle: {
+    width: SIZE * 3.8,
+    height: SIZE * 3.8,
+    borderRadius: 200,
+    borderColor: "rgba(0,0,256,0.5)",
+    borderWidth: 5,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
